@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class Sensor implements Runnable {
 
@@ -36,6 +37,7 @@ public class Sensor implements Runnable {
 
 		try {
 			mqttClient = new MqttClient(mqttServerURI, MqttClient.generateClientId());
+			mqttClient = new MqttClient(mqttServerURI, MqttClient.generateClientId(), new MemoryPersistence());
 			mqttClient.connect();
 		} catch (MqttException e) {
 			throw e;
