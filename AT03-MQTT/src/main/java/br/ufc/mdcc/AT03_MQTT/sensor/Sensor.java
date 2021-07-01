@@ -34,7 +34,19 @@ public class Sensor implements Runnable {
 		while (true) {
 			if (instant2.compareTo(instant1.plusMillis(milisSamplingInterval)) > 0) {
 				instant1 = Instant.now();
-				System.out.println(random.nextDouble());
+				if (random.nextDouble() <= this.variationProbability) {
+					double newTemp = this.temperature + this.lowerVariation
+							+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
+					if (newTemp < this.minTemperature) {
+						this.temperature = this.minTemperature;
+					} else if (newTemp > this.maxTemperature) {
+						this.temperature = this.maxTemperature;
+					} else {
+						this.temperature = newTemp;
+					}
+				}
+
+				System.out.println("temperature=" + this.temperature);
 			} else {
 				instant2 = Instant.now();
 			}
@@ -42,7 +54,7 @@ public class Sensor implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		Sensor sensor = new Sensor(0., 0., 0., 1000, 0., 0., 0.5);
+		Sensor sensor = new Sensor(180., 160., 280., 1, -10., 10, 0.95);
 		new Thread(sensor).start();
 	}
 }
