@@ -1,0 +1,22 @@
+version: "3.2"
+services:
+  mosquitto:
+    container_name: eclipse-mosquitto
+    image: eclipse-mosquitto
+    # environment:
+    #   MONGO_INITDB_ROOT_PASSWORD: admin123
+    #   MONGO_INITDB_ROOT_USERNAME: admi
+    volumes:
+      - mosquito-data-vol:/mosquitto/data
+      - mosquito-logs-vol:/mosquitto/log
+      - ./mosquito.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+
+volumes:
+  mosquito-data-vol:
+    driver: local
+
+  mosquito-logs-vol:
+    driver: local
