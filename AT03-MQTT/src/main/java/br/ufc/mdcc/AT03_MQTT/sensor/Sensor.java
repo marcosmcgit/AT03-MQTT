@@ -78,7 +78,7 @@ public class Sensor implements Runnable {
 	public static void main(String[] args) {
 		String serverURI = "tcp://localhost:1883";
 		String topic = "boiler/temperature";
-		int numSensors = 20;
+		int numSensors = 2;
 		try {
 			for (int i = 0; i < numSensors; i++) {
 				Sensor sensor = new Sensor(180., 170., 220., 1000, -1., 2, 0.98, serverURI, topic);
