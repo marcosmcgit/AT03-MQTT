@@ -47,27 +47,30 @@ public class Sensor implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			if (this.random.nextDouble() <= this.variationProbability) {
-				double newTemp = this.temperature + this.lowerVariation
-						+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
-				if (newTemp < this.minTemperature) {
-					this.temperature = this.minTemperature;
-				} else if (newTemp > this.maxTemperature) {
-					this.temperature = this.maxTemperature;
-				} else {
-					this.temperature = newTemp;
-				}
-			}
-
-			System.out.println(this.topic + "=" + String.format(Locale.US, "%.1f", this.temperature));
+			calculateNewTemperature();
 
 			try {
 				mqttClient.publish(this.topic, String.format(Locale.US, "%.1f", this.temperature).getBytes(), 0, false);
+				System.out.println(this.topic + "=" + String.format(Locale.US, "%.1f", this.temperature));
 				Thread.sleep(milisSamplingInterval);
 			} catch (MqttException e1) {
 				e1.printStackTrace();
 			} catch (InterruptedException e2) {
 				e2.printStackTrace();
+			}
+		}
+	}
+
+	private void calculateNewTemperature() {
+		if (this.random.nextDouble() <= this.variationProbability) {
+			double newTemp = this.temperature + this.lowerVariation
+					+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
+			if (newTemp < this.minTemperature) {
+				this.temperature = this.minTemperature;
+			} else if (newTemp > this.maxTemperature) {
+				this.temperature = this.maxTemperature;
+			} else {
+				this.temperature = newTemp;
 			}
 		}
 	}
