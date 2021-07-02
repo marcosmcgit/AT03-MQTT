@@ -18,8 +18,8 @@ public class Sensor implements Runnable {
 	private double variationProbability;
 	private String topic;
 
-	MqttClient mqttClient = null;
-	Random random = null;
+	private MqttClient mqttClient = null;
+	private Random random = null;
 
 	public Sensor(double temperature, double minTemperature, double maxTemperature, long milisSamplingInterval,
 			double lowerVariation, double upperVariation, double variationProbability, String brokerURI, String topic)
