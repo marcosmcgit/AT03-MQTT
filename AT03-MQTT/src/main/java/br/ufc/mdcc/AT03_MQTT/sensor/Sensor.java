@@ -1,6 +1,5 @@
 package br.ufc.mdcc.AT03_MQTT.sensor;
 
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Random;
 
