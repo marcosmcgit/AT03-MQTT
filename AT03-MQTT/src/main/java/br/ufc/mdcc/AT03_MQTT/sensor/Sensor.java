@@ -23,8 +23,8 @@ public class Sensor implements Runnable {
 	Random random = null;
 
 	public Sensor(double temperature, double minTemperature, double maxTemperature, long milisSamplingInterval,
-			double lowerVariation, double upperVariation, double variationProbability, String mqttServerURI,
-			String topic) throws MqttException {
+			double lowerVariation, double upperVariation, double variationProbability, String brokerURI, String topic)
+			throws MqttException {
 		super();
 		this.temperature = temperature;
 		this.minTemperature = minTemperature;
@@ -36,9 +36,8 @@ public class Sensor implements Runnable {
 		this.topic = topic;
 
 		try {
-			mqttClient = new MqttClient(mqttServerURI, MqttClient.generateClientId());
-			mqttClient = new MqttClient(mqttServerURI, MqttClient.generateClientId(), new MemoryPersistence());
-			mqttClient.connect();
+			this.mqttClient = new MqttClient(brokerURI, MqttClient.generateClientId(), new MemoryPersistence());
+			this.mqttClient.connect();
 		} catch (MqttException e) {
 			throw e;
 		}
@@ -48,34 +47,28 @@ public class Sensor implements Runnable {
 
 	@Override
 	public void run() {
-		Instant instant1 = Instant.now();
-		Instant instant2 = instant1;
-
 		while (true) {
-			if (instant2.compareTo(instant1.plusMillis(milisSamplingInterval)) > 0) {
-				instant1 = Instant.now();
-				if (random.nextDouble() <= this.variationProbability) {
-					double newTemp = this.temperature + this.lowerVariation
-							+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
-					if (newTemp < this.minTemperature) {
-						this.temperature = this.minTemperature;
-					} else if (newTemp > this.maxTemperature) {
-						this.temperature = this.maxTemperature;
-					} else {
-						this.temperature = newTemp;
-					}
+			if (this.random.nextDouble() <= this.variationProbability) {
+				double newTemp = this.temperature + this.lowerVariation
+						+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
+				if (newTemp < this.minTemperature) {
+					this.temperature = this.minTemperature;
+				} else if (newTemp > this.maxTemperature) {
+					this.temperature = this.maxTemperature;
+				} else {
+					this.temperature = newTemp;
 				}
+			}
 
-				System.out.println(this.topic + "=" + String.format(Locale.US, "%.1f", this.temperature));
+			System.out.println(this.topic + "=" + String.format(Locale.US, "%.1f", this.temperature));
 
-				try {
-					mqttClient.publish(this.topic, String.format(Locale.US, "%.1f", this.temperature).getBytes(), 0,
-							false);
-				} catch (MqttException e) {
-					e.printStackTrace();
-				}
-			} else {
-				instant2 = Instant.now();
+			try {
+				mqttClient.publish(this.topic, String.format(Locale.US, "%.1f", this.temperature).getBytes(), 0, false);
+				Thread.sleep(milisSamplingInterval);
+			} catch (MqttException e1) {
+				e1.printStackTrace();
+			} catch (InterruptedException e2) {
+				e2.printStackTrace();
 			}
 		}
 	}
