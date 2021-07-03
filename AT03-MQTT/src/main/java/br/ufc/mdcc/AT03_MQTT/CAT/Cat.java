@@ -16,14 +16,14 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 public class Cat implements MqttCallback {
 
 	private MqttAsyncClient mqttClient = null;
-	private String topicavg;
+	private String topicAlarm;
 	private ArrayList<Message> lastMessages;
-	private int xTime = 1;
+	private int xTime = 2;
 	
 	
-	public Cat(String brokerURI, String topicavg) throws MqttException {
+	public Cat(String brokerURI, String topicAlarm) throws MqttException {
 		super();
-		this.topicavg = topicavg;
+		this.topicAlarm = topicAlarm;
 		
 		try {
 			this.mqttClient = new MqttAsyncClient(brokerURI, "CAT", new MemoryPersistence());
@@ -41,9 +41,8 @@ public class Cat implements MqttCallback {
 		token.waitForCompletion();
 	}
 
-	public void funcao1() {
+	public void removeMessageInTime() {
 		this.lastMessages.removeIf(message -> message.getTimestamp() < System.currentTimeMillis()-(this.xTime*1000));
-		
 	}
 	
 	public double getAvgTemperature() {
@@ -52,10 +51,9 @@ public class Cat implements MqttCallback {
 			total += message.getTemperature();
 		}
 		
-		System.out.println(this.lastMessages.size());
+//		System.out.println(this.lastMessages.size());
 		
 		return total/this.lastMessages.size();
-		
 	}
 	
 	@Override
@@ -63,34 +61,32 @@ public class Cat implements MqttCallback {
 		System.out.println("Connection to broker lost!" + cause.getMessage());
 	}
 
-	double last_avgtemp = 0.0;
+	double actualAvcTemp = 0.0;
+	double lastAvgTemp = actualAvcTemp;
 	
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 		
-		this.funcao1(); // limpa buffer. janela
+		this.removeMessageInTime(); // limpa buffer. janela
 		Double temperature = Double.parseDouble(new String(message.getPayload()));
 		this.lastMessages.add(new Message(temperature,System.currentTimeMillis()));
 		
-		double avg_test = this.getAvgTemperature();
+		actualAvcTemp = this.getAvgTemperature();
 		
-		System.out.println(avg_test);
+		System.out.println(actualAvcTemp);
 		
 		
-		if ( Math.abs(avg_test - last_avgtemp) > 5.0 ) {
-			System.out.println("Aumento de temperatura repentina");
-			mqttClient.publish(this.topicavg, String.format(Locale.US, "%.1f", avg_test).getBytes(), 0, false);
+		if ( Math.abs(actualAvcTemp - lastAvgTemp) > 5.0 ) {
+			System.out.println("STR!");
+			mqttClient.publish(this.topicAlarm, String.format("STR").getBytes(), 0, false);
 		}
 //	
-		last_avgtemp=avg_test;
-//					
-//		System.out.println("\n\tTemperatura = " + temperature+
-//							"\n\tMedia = "+avg);
-//		
-//		if (avg > 200.0) {
-//			System.out.println("Temperatura alta");
-////			mqttClient.publish(this.topicavg, String.format("").getBytes(), 0, false);
-//		}
+		lastAvgTemp=actualAvcTemp;
+		
+		if (actualAvcTemp > 200.0) {
+			System.out.println("High Temperature!");
+			mqttClient.publish(this.topicAlarm, String.format("HT").getBytes(), 0, false);
+		}
 	}
 
 	@Override
@@ -100,9 +96,9 @@ public class Cat implements MqttCallback {
 	public static void main(String[] args) {
 		String serverURI = "tcp://localhost:1883";
 		String topic = "boiler/temperature";
-		String topicavg = "boiler/temperature/average";
+		String topicAlarm = "boiler/temperature/alarm";
 		try {
-			Cat alarm = new Cat(serverURI,topicavg);
+			Cat alarm = new Cat(serverURI,topicAlarm);
 			alarm.subscribe(topic);
 		} catch (MqttException e) {
 			e.printStackTrace();
