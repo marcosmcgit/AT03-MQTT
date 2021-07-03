@@ -35,8 +35,8 @@ public class Sensor implements Runnable {
 		this.topic = topic;
 
 		try {
-			this.mqttClient = new MqttClient(brokerURI, MqttClient.generateClientId(), new MemoryPersistence());
-			this.mqttClient.connect();
+			mqttClient = new MqttClient(brokerURI, MqttClient.generateClientId(), new MemoryPersistence());
+			mqttClient.connect();
 		} catch (MqttException e) {
 			throw e;
 		}
@@ -50,8 +50,8 @@ public class Sensor implements Runnable {
 			calculateNewTemperature();
 
 			try {
-				mqttClient.publish(this.topic, String.format(Locale.US, "%.1f", this.temperature).getBytes(), 0, false);
-				System.out.println(this.topic + "=" + String.format(Locale.US, "%.1f", this.temperature));
+				mqttClient.publish(topic, String.format(Locale.US, "%.1f", temperature).getBytes(), 0, false);
+				System.out.println(topic + "=" + String.format(Locale.US, "%.1f", temperature));
 				Thread.sleep(milisSamplingInterval);
 			} catch (MqttException e1) {
 				e1.printStackTrace();
@@ -62,15 +62,14 @@ public class Sensor implements Runnable {
 	}
 
 	private void calculateNewTemperature() {
-		if (this.random.nextDouble() <= this.variationProbability) {
-			double newTemp = this.temperature + this.lowerVariation
-					+ (random.nextDouble() * (this.upperVariation - this.lowerVariation));
-			if (newTemp < this.minTemperature) {
-				this.temperature = this.minTemperature;
-			} else if (newTemp > this.maxTemperature) {
-				this.temperature = this.maxTemperature;
+		if (random.nextDouble() <= variationProbability) {
+			double newTemp = temperature + lowerVariation + (random.nextDouble() * (upperVariation - lowerVariation));
+			if (newTemp < minTemperature) {
+				temperature = minTemperature;
+			} else if (newTemp > maxTemperature) {
+				temperature = maxTemperature;
 			} else {
-				this.temperature = newTemp;
+				temperature = newTemp;
 			}
 		}
 	}
@@ -78,7 +77,7 @@ public class Sensor implements Runnable {
 	public static void main(String[] args) {
 		String serverURI = "tcp://localhost:1883";
 		String topic = "boiler/temperature";
-		int numSensors = 2;
+		int numSensors = 20;
 		try {
 			for (int i = 0; i < numSensors; i++) {
 				Sensor sensor = new Sensor(180., 170., 220., 1000, -1., 2, 0.98, serverURI, topic);
