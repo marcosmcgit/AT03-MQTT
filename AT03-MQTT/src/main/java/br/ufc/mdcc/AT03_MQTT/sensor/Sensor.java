@@ -63,13 +63,18 @@ public class Sensor implements Runnable {
 
 	private void calculateNewTemperature() {
 		if (random.nextDouble() <= variationProbability) {
-			double newTemp = temperature + lowerVariation + (random.nextDouble() * (upperVariation - lowerVariation));
-			if (newTemp < minTemperature) {
-				temperature = minTemperature;
-			} else if (newTemp > maxTemperature) {
-				temperature = maxTemperature;
+			if (temperature == maxTemperature || temperature == minTemperature) {
+				temperature = 2. * (minTemperature + maxTemperature) / 3.;
 			} else {
-				temperature = newTemp;
+				double newTemp = temperature + lowerVariation
+						+ (random.nextDouble() * (upperVariation - lowerVariation));
+				if (newTemp < minTemperature) {
+					temperature = minTemperature;
+				} else if (newTemp > maxTemperature) {
+					temperature = maxTemperature;
+				} else {
+					temperature = newTemp;
+				}
 			}
 		}
 	}
@@ -80,7 +85,7 @@ public class Sensor implements Runnable {
 		int numSensors = 12;
 		try {
 			for (int i = 0; i < numSensors; i++) {
-				Sensor sensor = new Sensor(180., 170., 220., 60000, -3., 12., 0.98, serverURI, topic);
+				Sensor sensor = new Sensor(159., 150., 250., 60000, -10., 50., 0.98, serverURI, topic);
 				new Thread(sensor).start();
 			}
 		} catch (MqttException e) {
