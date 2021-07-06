@@ -1,4 +1,4 @@
-package br.ufc.mdcc.AT03_MQTT.alarm_v2;
+package br.ufc.mdcc.AT03_MQTT.alarm;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -145,7 +145,7 @@ public class MonitoringUI extends JFrame implements Runnable {
 	public static void main(String[] args) {
 		String serverURI = "tcp://localhost:1883";
 		String topic = "boiler/temperature/alarm";
-		long durationMilis = 10000L;
+		long durationMilis = 20000L;
 		long verificationInterval = 200L;
 
 		try {

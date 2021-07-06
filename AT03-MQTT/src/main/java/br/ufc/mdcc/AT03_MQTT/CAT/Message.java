@@ -8,7 +8,7 @@ public class Message {
 		this.temperature = temperature;
 		this.timestamp = timestamp;
 	}
-	
+
 	public double getTemperature() {
 		return temperature;
 	}
