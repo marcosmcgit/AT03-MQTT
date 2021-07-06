@@ -85,7 +85,7 @@ public class Sensor implements Runnable {
 		int numSensors = 12;
 		try {
 			for (int i = 0; i < numSensors; i++) {
-				Sensor sensor = new Sensor(170., 150., 250., 60000, 0., 50., 1., serverURI, topic);
+				Sensor sensor = new Sensor(170., 150., 250., 60000, 0., 50., 0.9, serverURI, topic);
 				new Thread(sensor).start();
 			}
 		} catch (MqttException e) {
