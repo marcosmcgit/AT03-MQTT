@@ -145,7 +145,7 @@ public class MonitoringUI extends JFrame implements Runnable {
 	public static void main(String[] args) {
 		String serverURI = "tcp://localhost:1883";
 		String topic = "boiler/temperature/alarm";
-		long durationMilis = 20000L;
+		long durationMilis = 45000L;
 		long verificationInterval = 200L;
 
 		try {
