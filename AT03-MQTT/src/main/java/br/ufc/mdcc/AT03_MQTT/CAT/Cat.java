@@ -16,7 +16,7 @@ public class Cat implements MqttCallback {
 	private MqttAsyncClient mqttClient = null;
 	private String topicAlarm;
 	private ArrayList<Message> lastMessages;
-	private int xTime = 12;
+	private int xTime = 120;
 
 	public Cat(String brokerURI, String topicAlarm) throws MqttException {
 		super();
