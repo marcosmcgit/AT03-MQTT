@@ -7,15 +7,18 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+/**
+ * Sensors simulated using threads.
+ */
 public class Sensor implements Runnable {
 
-	private double temperature;
-	private double minTemperature;
-	private double maxTemperature;
-	private long milisSamplingInterval;
-	private double lowerVariation;
-	private double upperVariation;
-	private double variationProbability;
+	private double temperature; // current temperature
+	private double minTemperature; // minimum possible temperature
+	private double maxTemperature; // maximum possible temperature
+	private long milisSamplingInterval; // interval between sensor data upload
+	private double lowerVariation; // current temp may vary from curTemp+lowerVariation
+	private double upperVariation; // current temp may vary to curTemp+upperVariation
+	private double variationProbability; // probability of temperature changing
 	private String topic;
 
 	private MqttClient mqttClient = null;
@@ -44,6 +47,10 @@ public class Sensor implements Runnable {
 		random = new Random();
 	}
 
+	/*
+	 * Calculates new temperature of this sensor, and sent the data to the mqtt
+	 * topic, sleeping milisSamplingInterval between next probe.
+	 */
 	@Override
 	public void run() {
 		while (true) {
@@ -62,12 +69,18 @@ public class Sensor implements Runnable {
 	}
 
 	private void calculateNewTemperature() {
+		// With a variationProbability chance it will change the current temperature.
 		if (random.nextDouble() <= variationProbability) {
+			// if temp reachs max or min, it will be 2/3 * (min+max), to avoid get stuck on
+			// the extreme values
 			if (temperature == maxTemperature || temperature == minTemperature) {
 				temperature = 2. * (minTemperature + maxTemperature) / 3.;
 			} else {
+				// new temperature will be the current temperature plus a random value between
+				// lowerVariation and upperVariation
 				double newTemp = temperature + lowerVariation
 						+ (random.nextDouble() * (upperVariation - lowerVariation));
+				// but it never goes beyond the upper and lower bounds
 				if (newTemp < minTemperature) {
 					temperature = minTemperature;
 				} else if (newTemp > maxTemperature) {
@@ -79,8 +92,14 @@ public class Sensor implements Runnable {
 		}
 	}
 
+	/*
+	 * The main method will run sensors with threads. It's important to indicate the
+	 * correct values of the MQTT broker, the topic and the number of sensors.
+	 * Furthermore, to define the suitable parameters to achieve the desired sensor
+	 * temperature variation.
+	 */
 	public static void main(String[] args) {
-		String serverURI = "tcp://localhost:1883";
+		String serverURI = "tcp://localhost:1883"; // MQTT broker URL
 		String topic = "boiler/temperature";
 		int numSensors = 12;
 		try {
