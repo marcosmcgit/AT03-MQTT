@@ -1,5 +1,6 @@
 package br.ufc.mdcc.AT03_MQTT.CAT;
 
+// A classe Message utilizada para definir caracteristicas das mensagens recebidas dos diferentes sensores.
 public class Message {
 	private double temperature;
 	private long timestamp;
