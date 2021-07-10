@@ -20,11 +20,14 @@ import javax.swing.WindowConstants;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+/**
+ * This class represents the GUI of a simple alarm system.
+ */
 public class MonitoringUI extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	public static final char HT_INDICATOR = 0;
-	public static final char STR_INDICATOR = 1;
+	public static final char HT_INDICATOR = 0; // High temperature indicator
+	public static final char STR_INDICATOR = 1; // sudden temperature rise indicator
 
 	private JLabel labelHT;
 	private JLabel labelSTR;
@@ -40,6 +43,10 @@ public class MonitoringUI extends JFrame implements Runnable {
 		initGUI();
 	}
 
+	/*
+	 * This method loads and configures graphical components (most swing) to provide
+	 * the GUI
+	 */
 	private void initGUI() {
 		panelLabelHT = new JPanel();
 		labelHT = new JLabel();
@@ -116,10 +123,17 @@ public class MonitoringUI extends JFrame implements Runnable {
 		setVisible(true);
 	}
 
+	/*
+	 * This method insert logs in the text area in the interface, to log occurrences
+	 */
 	public void insertLog(String log) {
 		textArea.insert(log, 0);
 	}
 
+	/*
+	 * This methods will changes the color of the indicator panels to red,
+	 * inticating that the respective alarm has fired
+	 */
 	public void fireAlarm(char alarmType) {
 		switch (alarmType) {
 		case HT_INDICATOR:
@@ -131,6 +145,11 @@ public class MonitoringUI extends JFrame implements Runnable {
 		}
 	}
 
+	/*
+	 * This methods will changes the color of the indicator panels to green,
+	 * inticating that the respective alarm has expired and the situation has
+	 * returned to normal
+	 */
 	public void resetAlarm(char alarmType) {
 		switch (alarmType) {
 		case HT_INDICATOR:
@@ -142,17 +161,26 @@ public class MonitoringUI extends JFrame implements Runnable {
 		}
 	}
 
+	/*
+	 * To view the GUI, run this main method. It's important do indicate the MQTT
+	 * broker URL where the alarms messages come from, as well as the duration of
+	 * alarm firing period and how often there will be verification of a change in
+	 * the situation, mainly from red to green.
+	 */
 	public static void main(String[] args) {
-		String serverURI = "tcp://localhost:1883";
+		String serverURI = "tcp://localhost:1883"; // MQTT broker URL
 		String topic = "boiler/temperature/alarm";
-		long durationMilis = 45000L;
-		long verificationInterval = 200L;
+		long durationMilis = 45000L; // how many time (ms) a received alarm expires
+		long verificationInterval = 200L; // how often checks if the alarm situation has changed
 
 		try {
 			MonitoringUI monitoringUI = new MonitoringUI();
+
 			Alarm alarm = new Alarm(serverURI, topic, durationMilis, monitoringUI);
 			Verifier verifier = new Verifier(alarm, verificationInterval);
 
+			// There will be a thread for the alarm system and another for the verifier
+			// system
 			new Thread(alarm).start();
 			new Thread(verifier).start();
 
