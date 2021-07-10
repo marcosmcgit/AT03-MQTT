@@ -11,7 +11,7 @@ No pacote `br.ufc.mdcc.AT03_MQTT.alarm`, a lógica está dividida nas seguintes 
 * `MonitoringUI.java`: trata da manipulação de componentes da interface gráfica com o usuário;
 * `Verifier.java`: trata da checagem periódica da ocorrência ou expiração de alarmes.
 
-Em nossos testes, utilizamos o broker MQTT [Mosquitto](https://mosquitto.org/), executando tudo na mesma máquina e usando o endereço localhost. Para utilizar máquinas diferentes ou ainda utilizar outros endereços em sua máquina, é necessário ajustar os endereços do broker. Para tanto, basta alterar o valor da variável `serverURI` nos métodos `main` das classes `Sensor.java`, `Cat.Java` e `MonitoringUI.java`.
+Em nossos testes, utilizamos o broker MQTT [Mosquitto](https://mosquitto.org/), executando tudo na mesma máquina e usando o endereço localhost. Para utilizar máquinas diferentes ou ainda utilizar outros endereços na mesma máquina, é necessário ajustar os endereços do broker. Para tanto, basta alterar o valor da variável `serverURI` nos métodos `main` das classes `Sensor.java`, `Cat.Java` e `MonitoringUI.java`.
 
 Para executá-lo, é necessário ter o broker MQTT em execução. Satisfeita essa condição, basta seguir os seguintes passos, em qualquer ordem:
 1. `br.ufc.mdcc.AT03_MQTT.alarm.MonitoringUI.main`: vai mostrar uma GUI para exibir alarmes de alta temperatura (HT) ou aumento repentino de temperatura (STR);
